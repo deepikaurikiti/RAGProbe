@@ -1,7 +1,7 @@
 import os
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import FAISS
 
 DATA_DIR = "data"
@@ -30,9 +30,8 @@ def index_data():
     chunks = text_splitter.split_documents(documents)
     print(f"Created {len(chunks)} chunks.")
 
-    print("Initializing embedding model...")
-    # Using a fast, lightweight open-source sentence-transformer model
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    print("Initializing Ollama embedding model (nomic-embed-text)...")
+    embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
     print("Building FAISS vector index...")
     vectorstore = FAISS.from_documents(chunks, embeddings)

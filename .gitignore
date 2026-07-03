@@ -2,3 +2,5 @@
 faiss_index
 data
 __pycache__
+venv
+.model_cache

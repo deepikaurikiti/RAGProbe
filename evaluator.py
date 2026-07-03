@@ -13,17 +13,16 @@ def _get_evaluator_components():
     global _local_llm, _evaluator_llm, _evaluator_embeddings
 
     if _local_llm is None:
-        from langchain_community.chat_models import ChatOllama
-        from langchain_huggingface import HuggingFaceEmbeddings
+        from langchain_ollama import ChatOllama, OllamaEmbeddings
         from ragas.llms import LangchainLLMWrapper
         from ragas.embeddings import LangchainEmbeddingsWrapper
 
         print("[EVALUATOR] Loading llama3.2 as evaluation judge...")
         _local_llm = ChatOllama(model="llama3.2", temperature=0)
         _evaluator_llm = LangchainLLMWrapper(_local_llm)
-        # Reuse the same embedding model already cached on disk
+        # Reuse Ollama embedding model — no cold start
         _evaluator_embeddings = LangchainEmbeddingsWrapper(
-            HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+            OllamaEmbeddings(model="nomic-embed-text")
         )
         print("[EVALUATOR] Evaluator components loaded.")
 
