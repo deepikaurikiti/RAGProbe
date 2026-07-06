@@ -17,8 +17,8 @@ def _get_evaluator_components():
         from ragas.llms import LangchainLLMWrapper
         from ragas.embeddings import LangchainEmbeddingsWrapper
 
-        print("[EVALUATOR] Loading llama3.2 as evaluation judge...")
-        _local_llm = ChatOllama(model="llama3.2", temperature=0)
+        print("[EVALUATOR] Loading llama3.2:1b as evaluation judge...")
+        _local_llm = ChatOllama(model="llama3.2:1b", temperature=0)
         _evaluator_llm = LangchainLLMWrapper(_local_llm)
         # Reuse Ollama embedding model — no cold start
         _evaluator_embeddings = LangchainEmbeddingsWrapper(

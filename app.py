@@ -94,8 +94,8 @@ def load_vectorstore():
 def get_rag_chain(_vectorstore):
     """Builds the qwen2.5:0.5b RAG chain. Light — Ollama is called per-query."""
     from langchain_ollama import ChatOllama
-    from langchain.chains import create_retrieval_chain
-    from langchain.chains.combine_documents import create_stuff_documents_chain
+    from langchain_classic.chains import create_retrieval_chain
+    from langchain_classic.chains.combine_documents import create_stuff_documents_chain
     from langchain_core.prompts import ChatPromptTemplate
 
     llm = ChatOllama(model=RAG_MODEL, temperature=0)
@@ -122,6 +122,13 @@ def run_evaluation_async(question, answer, contexts, db_connected):
         metrics = evaluator.evaluate_rag_run(question, answer, contexts, ground_truth)
         if metrics:
             print(f"[EVAL COMPLETE] {metrics}")
+            
+            # Save to Streamlit session state
+            import streamlit as st
+            score = metrics.copy()
+            score["question"] = question
+            st.session_state.eval_scores.append(score)
+
             if db_connected:
                 import database
                 database.log_evaluation(
@@ -185,11 +192,13 @@ if user_input := st.chat_input("What is a Horcrux?"):
                         st.caption(doc.page_content)
 
                 # Kick off llama3.2 evaluation in background thread (loads lazily)
+                from streamlit.runtime.scriptrunner import add_script_run_ctx
                 eval_thread = threading.Thread(
                     target=run_evaluation_async,
                     args=(user_input, answer, contexts, db_connected),
                     daemon=True
                 )
+                add_script_run_ctx(eval_thread)
                 eval_thread.start()
                 st.info("🔍 RAGAS evaluation running in background via `llama3.2`... Check sidebar after next query.")
 
